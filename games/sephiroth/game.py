@@ -1,7 +1,7 @@
 # @name Name of my Amazing Example Game
 # @author Jane & John Smith
 x = 0
-y = 0
+y = 30
 import os
 os.environ['SDL_VIDEO_WINDOW_POS'] = f'{x},{y}'
 
