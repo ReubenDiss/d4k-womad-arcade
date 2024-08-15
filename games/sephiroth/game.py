@@ -1,5 +1,10 @@
 # @name Name of my Amazing Example Game
 # @author Jane & John Smith
+x = 0
+y = 0
+import os
+os.environ['SDL_VIDEO_WINDOW_POS'] = f'{x},{y}'
+
 import pgzrun
 import random
 import sys
@@ -7,6 +12,12 @@ import sys
 WIDTH = 800
 HEIGHT = 600
 lives = int(3)
+
+class vector :
+  vy = 1
+  vx = 0 
+
+gemvector = vector()
 
 ship = Actor('playership1_blue')
 ship.x = 370
@@ -22,11 +33,13 @@ score = 0
 game_over = False
 
 def update():
-  global score, game_over, lives
+  global score, game_over, lives, gemvector
 
   if keyboard.escape:
     exit()
     sys.exit()
+  if game_over:
+    return
   if keyboard.left:
     ship.x = (ship.x - 5 - score / 5) % WIDTH
   if keyboard.right:
@@ -40,9 +53,12 @@ def update():
 
   wasmeteor = False
   newgem = False
-  gem.y = gem.y + 4 + score / 5
+  gem.y = gem.y + gemvector.vy + score / 5
+  gem.x = (gem.x + gemvector.vx) % WIDTH 
   if gem.y > 600:
-    if gem.image == 'meteorbrown_big3':
+    if gem.image == 'star_gold':
+      newgem = True
+    elif gem.image == 'meteorbrown_big3':
       wasmeteor = True
     else:
       newgem = True 
@@ -72,6 +88,8 @@ def update():
     gem.x = random.randint(20, 780)
     gem.y = 0
     gem.image = random.choice(gem_images)
+    gemvector.vx = random.randint(-5,5)
+    gemvector.vy = random.randint(1,5)
 
 def draw():
   screen.fill((80,0,70))
@@ -81,6 +99,6 @@ def draw():
   else:
     gem.draw()
     ship.draw()
-    screen.draw.text('Score: ' + str(score) + 'Lives: ' + str(lives), (15,10), color=(255,255,255), fontsize=30)
+    screen.draw.text('Score: ' + str(score) + ' Lives: ' + str(lives), (15,10), color=(255,255,255), fontsize=30)
 
 pgzrun.go() # Must be last line
