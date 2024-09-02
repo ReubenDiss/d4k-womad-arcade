@@ -35,7 +35,7 @@ ship.y = 550
 ###gold bolt will slow the gems down for 3 secs
 
 gem = Actor('gemgreen')
-gem_images = ['gemblue', 'gemgreen', 'gemred', 'gemyellow','star_gold','meteorbrown_big3','bolt_gold', 'shieldgold']
+gem_images = ['gemblue', 'gemgreen', 'gemred', 'gemyellow','star_gold','meteorbrown_big3','bolt_gold', 'shieldgold','snail']
 gem.images = gem_images
 gem.x = random.randint(20, 780)
 gem.y = 0
@@ -45,9 +45,10 @@ game_over = False
 
 immunityTracker =  TimeSpanTracker()
 slowdownTracker = TimeSpanTracker()
+gloopTracker = TimeSpanTracker()
 
 def update():
-  global score, game_over, lives, gemvector, immunityTracker, slowdownTracker, hiScore
+  global score, game_over, lives, gemvector, immunityTracker, slowdownTracker, gloopTracker, hiScore
 
   if keyboard.escape:
     exit()
@@ -55,14 +56,14 @@ def update():
   if game_over:
     return
   if keyboard.left:
-    ship.x = (ship.x - 5 - score / 5) % WIDTH
+    ship.x = (ship.x - 5 - (score / 5 if not gloopTracker.IsActive() else 0)) % WIDTH
   if keyboard.right:
-    ship.x = (ship.x + 5 + score / 5) % WIDTH
+    ship.x = (ship.x + 5 + (score / 5 if not gloopTracker.IsActive() else 0)) % WIDTH
 
   if keyboard.up:
-    ship.y = (ship.y - 5 - score / 5) % HEIGHT
+    ship.y = (ship.y - 5 - (score / 5 if not gloopTracker.IsActive() else 0)) % HEIGHT
   if keyboard.down:
-    ship.y = (ship.y + 5 + score / 5) % HEIGHT
+    ship.y = (ship.y + 5 + (score / 5 if not gloopTracker.IsActive() else 0)) % HEIGHT
 
   ship.image = 'playership1_red' if immunityTracker.IsActive() else 'playership1_blue'
 
@@ -73,7 +74,7 @@ def update():
   gem.y = gem.y + gemvector.vy  + (score / 5 if not slowdownTracker.IsActive() else 0)
   gem.x = (gem.x + gemvector.vx) % WIDTH 
   if gem.y > 600:
-    if gem.image == 'star_gold' or gem.image == 'shieldgold' or gem.image == 'bolt_gold':
+    if gem.image == 'star_gold' or gem.image == 'shieldgold' or gem.image == 'bolt_gold' or gem.image == 'snail' or immunityTracker.IsActive():
       newgem = True
     elif gem.image == 'meteorbrown_big3':
       wasmeteor = True
@@ -91,6 +92,8 @@ def update():
       slowdownTracker.StartTimer(3)
     elif gem.image == 'shieldgold':
       immunityTracker.StartTimer(3)
+    elif gem.image == 'snail':
+      gloopTracker.StartTimer(3)
     elif gem.image == 'gemblue':
       score = score + 1
     elif gem.image == 'gemgreen':
